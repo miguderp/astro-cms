@@ -1,0 +1,57 @@
+---
+import { z } from "astro/zod";
+
+import AdminLayout from "@/layouts/AdminLayout.astro";
+import { db } from "astro:db";
+import { User } from "astro:db";
+
+if (Astro.request.method === "POST") {
+	const schema = z.object({
+		email: z.string().email(),
+		password: z.string().min(8),
+	});
+
+	try {
+		const formData = await Astro.request.formData();
+
+		const { email, password } = schema.parse({
+			email: formData.get("email"),
+			password: formData.get("password"),
+		});
+
+		// await db.insert(User).values({
+		// 	id: "123",
+		// });
+
+		console.log(email, password);
+	} catch (error) {
+		if (error instanceof Error) {
+			console.error(error.message);
+		}
+	}
+
+	const users = await db.select().from(User).all();
+}
+---
+
+<AdminLayout title="Sign in">
+	<form method="post" class="grid max-w-56 gap-y-3">
+		<fieldset class="flex flex-col gap-y-1">
+			<label for="email" class="text-sm">
+				<strong>Email</strong>
+			</label>
+
+			<input id="email" name="email" type="email" required class="rounded-sm border" />
+		</fieldset>
+
+		<fieldset class="flex flex-col gap-y-1">
+			<label for="password" class="text-sm">
+				<strong>Password</strong>
+			</label>
+
+			<input id="password" name="password" type="password" required class="rounded-sm border" />
+		</fieldset>
+
+		<button class="rounded-md bg-black py-1 text-white">Sign in</button>
+	</form>
+</AdminLayout>
