@@ -9,8 +9,8 @@ dependencies:
     specifier: ^0.5.10
     version: 0.5.10(prettier-plugin-astro@0.13.0)(prettier@3.2.5)(typescript@5.4.5)
   '@astrojs/db':
-    specifier: ^0.10.3
-    version: 0.10.3
+    specifier: ^0.10.5
+    version: 0.10.5
   '@astrojs/tailwind':
     specifier: ^5.1.0
     version: 5.1.0(astro@4.6.0)(tailwindcss@3.4.3)
@@ -77,8 +77,8 @@ packages:
     resolution: {integrity: sha512-/POejAYuj8WEw7ZI0J8JBvevjfp9jQ9Wmu/Bg52RiNwGXkMV7JnYpsenVfHvvf1G7R5sXHGKlTcxlQWhoUTiGQ==}
     dev: false
 
-  /@astrojs/db@0.10.3:
-    resolution: {integrity: sha512-ly6M5q5u4GaMTEVwgLT89Frrm0PjgLRDBUV2bj6ZQHZSi/YtaF/1NcblVQgz2xvFFq+11tkjAmJBFxZXW5GPvA==}
+  /@astrojs/db@0.10.5:
+    resolution: {integrity: sha512-hsHcv44FTOgTTWqg7kv6CVlRkb08o2aenkilk3n2gTgJ15czi/O/1Hh8QZfJ+TZHvOA/tcjKSYeWJMJ7x67xfg==}
     dependencies:
       '@libsql/client': 0.5.6
       async-listen: 3.0.1
