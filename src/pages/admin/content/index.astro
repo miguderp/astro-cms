@@ -1,0 +1,25 @@
+---
+import { db, Variant } from "astro:db";
+
+import AdminLayout from "@/layouts/AdminLayout.astro";
+
+const variants = await db.select().from(Variant).all();
+---
+
+<AdminLayout title={`Admin area – All content types`}>
+	<h1 class="text-xl font-bold">Content</h1>
+
+	{
+		variants.length > 0 ? (
+			<ul>
+				{variants.map((variant) => (
+					<li>
+						{variant.name} ({variant.slug})
+					</li>
+				))}
+			</ul>
+		) : (
+			<p>No content types found</p>
+		)
+	}
+</AdminLayout>

@@ -1,0 +1,23 @@
+---
+import { eq, db, Content } from "astro:db";
+
+import AdminLayout from "@/layouts/AdminLayout.astro";
+
+console.log("???", Astro.params);
+const { slug } = Astro.params;
+if (slug === undefined) {
+	throw new Error("Slug is required");
+}
+
+const content = await db.select().from(Content).where(eq(Content.slug, slug));
+
+if (content.length === 0) {
+	return new Response("Not found", { status: 404 });
+}
+---
+
+<AdminLayout title={`Admin area – ${content[0].title}`}>
+	<h1>Hello world</h1>
+
+	<p>{Astro.params.slug}</p>
+</AdminLayout>

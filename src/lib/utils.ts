@@ -1,8 +1,8 @@
 import { nanoid } from "nanoid";
 
 const prefixes = {
+	content: "post",
 	user: "usr",
-	session: "ses",
 } as const;
 
 export function newId(prefix: keyof typeof prefixes): string {

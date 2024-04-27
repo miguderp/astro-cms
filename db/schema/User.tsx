@@ -8,6 +8,7 @@ export const User = defineTable({
 		}),
 		username: column.text({
 			label: "Username",
+			unique: true,
 		}),
 		email: column.text({
 			label: "Email",

@@ -1,4 +1,4 @@
-import { db, User } from "astro:db";
+import { Content, db, User, Variant } from "astro:db";
 import { Argon2id } from "oslo/password";
 
 import { newId } from "@/lib/utils";
@@ -12,5 +12,23 @@ export default async function seed() {
 		email: "admin@astro-cms.com",
 		username: "Admin",
 		hashedPassword,
+	});
+
+	await db.insert(Variant).values([
+		{
+			slug: "media",
+			name: "Media",
+		},
+		{
+			slug: "page",
+			name: "Page",
+		},
+	]);
+
+	await db.insert(Content).values({
+		id: newId("content"),
+		title: "Home",
+		slug: "home",
+		variant: "page",
 	});
 }

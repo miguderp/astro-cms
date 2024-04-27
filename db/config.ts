@@ -1,12 +1,13 @@
 import { defineDb } from "astro:db";
 
-import { User } from "./schema/User";
-import { Session } from "./schema/Session";
+import { Content, Session, User, Variant } from "./schema";
 
 // ? https://astro.build/db/config
 export default defineDb({
 	tables: {
-		User,
+		Content,
 		Session,
+		User,
+		Variant,
 	},
 });
