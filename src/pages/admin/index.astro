@@ -15,7 +15,7 @@ const users = await db.select().from(User).all();
 				<ul>
 					{users.map((user) => (
 						<li>
-							{user.firstName} {user.lastName} ({user.email})
+							{user.username} ({user.email})
 						</li>
 					))}
 				</ul>
