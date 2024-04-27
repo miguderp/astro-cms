@@ -6,13 +6,9 @@ export const User = defineTable({
 			label: "ID",
 			primaryKey: true,
 		}),
-		firstName: column.text({
-			label: "First name",
-			optional: true,
-		}),
-		lastName: column.text({
-			label: "Last name",
-			optional: true,
+		username: column.text({
+			label: "Username",
+			unique: true,
 		}),
 		email: column.text({
 			label: "Email",

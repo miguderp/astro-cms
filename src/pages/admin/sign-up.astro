@@ -47,8 +47,7 @@ if (Astro.request.method === "POST") {
 					.insert(User)
 					.values({
 						id: newId("user"),
-						firstName: result.data.firstName,
-						lastName: result.data.lastName,
+						username: `${result.data.firstName} ${result.data.lastName}`,
 						email: result.data.email,
 						hashedPassword,
 					})
