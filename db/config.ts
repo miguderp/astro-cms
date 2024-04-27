@@ -1,24 +1,7 @@
-import { column, defineDb, defineTable } from "astro:db";
+import { defineDb } from "astro:db";
 
-const User = defineTable({
-	columns: {
-		id: column.text({
-			primaryKey: true,
-		}),
-	},
-});
-
-const Session = defineTable({
-	columns: {
-		id: column.text({
-			primaryKey: true,
-		}),
-		expiresAt: column.date(),
-		userId: column.text({
-			references: () => User.columns.id,
-		}),
-	},
-});
+import { User } from "./schema/User";
+import { Session } from "./schema/Session";
 
 // ? https://astro.build/db/config
 export default defineDb({

@@ -3,6 +3,8 @@ import type { AstroCookieSetOptions } from "astro";
 
 import { lucia } from "@/auth";
 
+const authRoutes = ["/admin/secret"];
+
 export const onRequest = defineMiddleware(async (context, next) => {
 	const sessionId = context.cookies.get(lucia.sessionCookieName)?.value ?? null;
 
@@ -10,7 +12,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		context.locals.user = null;
 		context.locals.session = null;
 
-		return next();
+		// ? verify that we’re not on an auth route
+		if (authRoutes.includes(context.url.pathname)) {
+			return context.redirect("/admin/sign-in");
+		} else {
+			return next();
+		}
 	}
 
 	const { session, user } = await lucia.validateSession(sessionId);
@@ -23,6 +30,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	if (!session) {
 		const sessionCookie = lucia.createBlankSessionCookie();
 		context.cookies.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes as AstroCookieSetOptions);
+
+		return context.redirect("/admin/sign-in");
 	}
 
 	context.locals.session = session;

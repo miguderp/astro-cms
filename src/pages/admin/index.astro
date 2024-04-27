@@ -1,8 +1,27 @@
-<div class="container mx-auto my-4">
-	<h1 class="mb-3 text-xl font-bold">Admin area &ndash; WIP</h1>
+---
+import { db, User } from "astro:db";
 
-	<ul>
-		<li><a href="/admin/sign-in">Sign in</a> &ndash; <a href="/admin/sign-out">Sign out</a></li>
-		<li><a href="/admin/sign-up">Sign up</a></li>
-	</ul>
-</div>
+import AdminLayout from "@/layouts/AdminLayout.astro";
+
+const users = await db.select().from(User).all();
+---
+
+<AdminLayout title="Admin area – Home">
+	<div class="container mx-auto my-4">
+		<h1 class="mb-3 text-xl font-bold">Admin area &ndash; WIP</h1>
+
+		{
+			users.length > 0 ? (
+				<ul>
+					{users.map((user) => (
+						<li>
+							{user.firstName} {user.lastName} ({user.email})
+						</li>
+					))}
+				</ul>
+			) : (
+				<p>No users found</p>
+			)
+		}
+	</div>
+</AdminLayout>

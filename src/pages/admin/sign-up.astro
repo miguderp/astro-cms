@@ -1,7 +1,127 @@
 ---
+import type { AstroCookieSetOptions } from "astro";
+import { eq, db, User } from "astro:db";
+import { z } from "astro/zod";
+import { Argon2id } from "oslo/password";
+
+import { lucia } from "@/auth";
 import AdminLayout from "@/layouts/AdminLayout.astro";
+import { newId } from "@/lib/utils";
+
+const schema = z.object({
+	firstName: z.string().min(1, { message: "First name is required" }),
+	lastName: z.string().min(1, { message: "Last name is required" }),
+	email: z.string().email({ message: "Invalid email" }),
+	password: z.string().min(8, { message: "Password must be at least 8 characters" }),
+});
+
+const errors = { email: "", password: "", firstName: "", lastName: "", feedback: "" };
+
+if (Astro.request.method === "POST") {
+	try {
+		const formData = await Astro.request.formData();
+
+		const result = schema.safeParse({
+			firstName: formData.get("firstName"),
+			lastName: formData.get("lastName"),
+			email: formData.get("email"),
+			password: formData.get("password"),
+		});
+
+		if (!result.success) {
+			const allErrors = result.error.flatten().fieldErrors;
+
+			errors.firstName = allErrors.firstName?.[0] ?? "";
+			errors.lastName = allErrors.lastName?.[0] ?? "";
+			errors.email = allErrors.email?.[0] ?? "";
+			errors.password = allErrors.password?.[0] ?? "";
+		} else {
+			const userAlreadyExists = await db.select().from(User).where(eq(User.email, result.data.email));
+
+			if (userAlreadyExists.length > 0) {
+				errors.feedback += "Email is already in use, please log in instead";
+			} else {
+				const hashedPassword = await new Argon2id().hash(result.data.password);
+
+				const newUser = await db
+					.insert(User)
+					.values({
+						id: newId("user"),
+						firstName: result.data.firstName,
+						lastName: result.data.lastName,
+						email: result.data.email,
+						hashedPassword,
+					})
+					.returning();
+
+				if (newUser.length > 0) {
+					const session = await lucia.createSession(newUser[0].id, {});
+					const sessionCookie = lucia.createSessionCookie(session.id);
+
+					Astro.cookies.set(lucia.sessionCookieName, sessionCookie.value, sessionCookie.attributes as AstroCookieSetOptions);
+
+					return Astro.redirect("/admin");
+				} else {
+					errors.feedback += "Something went wrong";
+				}
+			}
+		}
+	} catch (error) {
+		errors.feedback += "Something went wrong";
+
+		if (error instanceof Error) {
+			console.error(error.message);
+		}
+	}
+}
 ---
 
-<AdminLayout title="Sign up">
-	<p>Placeholder</p>
+<AdminLayout title="Admin area – Sign up">
+	<form method="post" class="mx-auto grid max-w-xl gap-y-3">
+		<div class="grid grid-cols-2 gap-3">
+			<fieldset class="flex flex-col gap-y-1">
+				<label for="firstName" class="text-sm">
+					<strong>First name</strong>
+				</label>
+
+				{errors.firstName && <p class="text-sm font-bold text-red-500">{errors.firstName}</p>}
+
+				<input id="firstName" name="firstName" type="text" required class="rounded-sm border" />
+			</fieldset>
+
+			<fieldset class="flex flex-col gap-y-1">
+				<label for="lastName" class="text-sm">
+					<strong>Last name</strong>
+				</label>
+
+				{errors.lastName && <p class="text-sm font-bold text-red-500">{errors.lastName}</p>}
+
+				<input id="lastName" name="lastName" type="text" required class="rounded-sm border" />
+			</fieldset>
+		</div>
+
+		<fieldset class="flex flex-col gap-y-1">
+			<label for="email" class="text-sm">
+				<strong>Email</strong>
+			</label>
+
+			{errors.email && <p class="text-sm font-bold text-red-500">{errors.email}</p>}
+
+			<input id="email" name="email" type="email" required class="rounded-sm border" />
+		</fieldset>
+
+		<fieldset class="flex flex-col gap-y-1">
+			<label for="password" class="text-sm">
+				<strong>Password</strong>
+			</label>
+
+			{errors.password && <p class="text-sm font-bold text-red-500">{errors.password}</p>}
+
+			<input id="password" name="password" type="password" required class="rounded-sm border" />
+		</fieldset>
+
+		<button class="rounded-md bg-black py-1 text-white">Sign in</button>
+
+		{errors.feedback && <p class="text-sm font-bold text-red-500">{errors.feedback}</p>}
+	</form>
 </AdminLayout>
