@@ -1,0 +1,57 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+
+interface Props {
+	title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<BaseLayout title={title}>
+	<div class="container mx-auto my-4">
+		<h1 class="text-xl font-bold">Admin area &ndash; WIP</h1>
+
+		<ul class="flex gap-x-4">
+			<li>
+				<a href="/admin" class="underline underline-offset-2">Home</a>
+			</li>
+
+			{
+				Astro.locals.session ? (
+					<>
+						<li>
+							<a href="/admin/sign-out" class="underline underline-offset-2">
+								Sign out
+							</a>
+						</li>
+
+						<li>
+							<a href="/admin/secret" class="underline underline-offset-2">
+								Access secret page
+							</a>
+						</li>
+					</>
+				) : (
+					<>
+						<li>
+							<a href="/admin/sign-in" class="underline underline-offset-2">
+								Sign in
+							</a>
+						</li>
+
+						<li>
+							<a href="/admin/sign-up" class="underline underline-offset-2">
+								Sign up
+							</a>
+						</li>
+					</>
+				)
+			}
+		</ul>
+
+		<hr class="my-5 w-8" />
+
+		<slot />
+	</div>
+</BaseLayout>

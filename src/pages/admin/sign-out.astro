@@ -1,0 +1,13 @@
+---
+import type { AstroCookieSetOptions } from "astro";
+
+import { lucia } from "@/auth";
+import AdminLayout from "@/layouts/AdminLayout.astro";
+
+const blankSessionCookie = lucia.createBlankSessionCookie();
+Astro.cookies.set(lucia.sessionCookieName, blankSessionCookie.value, blankSessionCookie.attributes as AstroCookieSetOptions);
+
+return Astro.redirect("/admin/sign-in");
+---
+
+<AdminLayout title="Admin area – Sign out" />

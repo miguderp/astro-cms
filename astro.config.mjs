@@ -8,4 +8,16 @@ export default defineConfig({
 	output: "server",
 	adapter: vercel(),
 	integrations: [tailwind(), db()],
+	vite: {
+		optimizeDeps: {
+			exclude: ["oslo", "astro:db"],
+		},
+	},
+	experimental: {
+		security: {
+			csrfProtection: {
+				origin: true,
+			},
+		},
+	},
 });

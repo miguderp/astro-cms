@@ -1,0 +1,87 @@
+---
+import type { AstroCookieSetOptions } from "astro";
+import { eq, db, User } from "astro:db";
+import { z } from "astro/zod";
+import { Argon2id } from "oslo/password";
+
+import { lucia } from "@/auth";
+import AdminLayout from "@/layouts/AdminLayout.astro";
+
+const schema = z.object({
+	email: z.string().email({ message: "Invalid email" }),
+	password: z.string().min(8, { message: "Password must be at least 8 characters" }),
+});
+
+const errors = { email: "", password: "", feedback: "" };
+
+if (Astro.request.method === "POST") {
+	try {
+		const formData = await Astro.request.formData();
+
+		const result = schema.safeParse({
+			email: formData.get("email"),
+			password: formData.get("password"),
+		});
+
+		if (!result.success) {
+			const allErrors = result.error.flatten().fieldErrors;
+
+			errors.email = allErrors.email?.[0] ?? "";
+			errors.password = allErrors.password?.[0] ?? "";
+		} else {
+			const user = await db.select().from(User).where(eq(User.email, result.data.email));
+
+			if (user.length === 0) {
+				errors.feedback += "Incorrect email or password, please verify your inputs";
+			} else {
+				const isPasswordCorrect = await new Argon2id().verify(user[0].hashedPassword, result.data.password);
+
+				if (!isPasswordCorrect) {
+					errors.feedback += "Incorrect email or password, please verify your inputs";
+				} else {
+					const session = await lucia.createSession(user[0].id, {});
+					const sessionCookie = lucia.createSessionCookie(session.id);
+
+					Astro.cookies.set(lucia.sessionCookieName, sessionCookie.value, sessionCookie.attributes as AstroCookieSetOptions);
+
+					return Astro.redirect("/admin");
+				}
+			}
+		}
+	} catch (error) {
+		errors.feedback += "Something went wrong";
+
+		if (error instanceof Error) {
+			console.error(error.message);
+		}
+	}
+}
+---
+
+<AdminLayout title="Admin area – Sign in">
+	<form method="post" class="mx-auto grid max-w-xl gap-y-3">
+		<fieldset class="flex flex-col gap-y-1">
+			<label for="email" class="text-sm">
+				<strong>Email</strong>
+			</label>
+
+			{errors.email && <p class="text-sm font-bold text-red-500">{errors.email}</p>}
+
+			<input id="email" name="email" type="email" required class="rounded-sm border" />
+		</fieldset>
+
+		<fieldset class="flex flex-col gap-y-1">
+			<label for="password" class="text-sm">
+				<strong>Password</strong>
+			</label>
+
+			{errors.password && <p class="text-sm font-bold text-red-500">{errors.password}</p>}
+
+			<input id="password" name="password" type="password" required class="rounded-sm border" />
+		</fieldset>
+
+		<button class="rounded-md bg-black py-1 text-white">Sign in</button>
+
+		{errors.feedback && <p class="text-sm font-bold text-red-500">{errors.feedback}</p>}
+	</form>
+</AdminLayout>
