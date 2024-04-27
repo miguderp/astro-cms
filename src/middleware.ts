@@ -31,7 +31,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		const sessionCookie = lucia.createBlankSessionCookie();
 		context.cookies.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes as AstroCookieSetOptions);
 
-		return context.redirect("/admin/sign-in");
+		if (authRoutes.includes(context.url.pathname)) {
+			return context.redirect("/admin/sign-in");
+		}
 	}
 
 	context.locals.session = session;
