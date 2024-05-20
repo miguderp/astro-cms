@@ -14,7 +14,7 @@
 		"@astrojs/db": "^0.10.6",
 		"@astrojs/tailwind": "^5.1.0",
 		"@astrojs/vercel": "^7.5.4",
-		"astro": "^4.7.0",
+		"astro": "^4.8.6",
 		"lucia": "^3.2.0",
 		"lucia-adapter-astrodb": "^0.0.8",
 		"nanoid": "^5.0.7",
